@@ -1,0 +1,182 @@
+{
+  "intents": [
+    {
+      "tag": "greeting",
+      "patterns": [
+        "Halo",
+        "Apa kabar?",
+        "Ada yang bisa dibantu?",
+        "Hai",
+        "Hola",
+        "Selamat pagi",
+        "Halo, skabum"
+      ],
+      "responses": [
+        "Halo, ada yang bisa skabum bantu?",
+        "Hi, senang bertemu anda?",
+        "Apa yang ingin anda ketahui?"
+      ],
+      "context": [
+        ""
+      ]
+    },
+    {
+      "tag": "goodbye",
+      "patterns": [
+        "Selamat tinggal",
+        "Sampai jumpa lagi",
+        "Sampai jumpa",
+        "Senang berbincang dengan Anda, selamat tinggal",
+        "Sampai jumpa lain waktu"
+      ],
+      "responses": [
+        "Sampai jumpa!",
+        "Semoga harimu menyenangkan",
+        "Selamat tinggal, semangat belajarnya yaa"
+      ],
+      "context": [
+        ""
+      ]
+    },
+    {
+      "tag": "school_information",
+      "patterns": [
+        "Apa nama sekolah ini?",
+        "Sekolah ini bernama apa?",
+        "Apa nama lengkap sekolah ini?",
+        "SMPK Budi Mulia di mana?",
+        "Sekolah ini berada di mana?"
+      ],
+      "responses": [
+        "Sekolah ini adalah SMPK Budi Mulia yang berlokasi di Lawang, Jawa Timur.",
+        "Anda sedang menghubungi SMPK Budi Mulia Lawang, berlokasi di Lawang, Jawa Timur.",
+        "Ini adalah SMPK Budi Mulia, terletak di Lawang, Jawa Timur."
+      ],
+      "context": [
+        ""
+      ]
+    },
+    {
+      "tag": "admission",
+      "patterns": [
+        "Bagaimana cara mendaftar di sekolah ini?",
+        "Apakah ada pendaftaran siswa baru?",
+        "Bagaimana proses pendaftarannya?",
+        "Bagaimana cara saya mendaftar di SMPK Budi Mulia?",
+        "Apa persyaratan untuk mendaftar di sekolah ini?"
+      ],
+      "responses": [
+        "Untuk mendaftar di SMPK Budi Mulia Lawang, Anda dapat mengunjungi situs resmi kami atau datang langsung ke sekolah untuk informasi lebih lanjut.",
+        "Pendaftaran siswa baru dapat dilakukan melalui website sekolah atau dengan datang langsung ke SMPK Budi Mulia di Lawang.",
+        "Silakan kunjungi halaman pendaftaran di situs web SMPK Budi Mulia atau datang langsung ke sekolah untuk informasi lebih lanjut."
+      ],
+      "context": [
+        ""
+      ]
+    },
+    {
+      "tag": "tuition_fee",
+      "patterns": [
+        "Berapa biaya sekolah di sini?",
+        "Apa biaya SPP di SMPK Budi Mulia?",
+        "Berapa uang sekolahnya?",
+        "Berapa biaya pendidikan di SMPK Budi Mulia?",
+        "Bagaimana struktur biaya sekolah di sini?"
+      ],
+      "responses": [
+        "Untuk informasi biaya sekolah di SMPK Budi Mulia, Anda dapat menghubungi bagian administrasi sekolah atau mengunjungi situs resmi kami.",
+        "Biaya pendidikan di SMPK Budi Mulia bervariasi, silakan hubungi administrasi sekolah untuk detail lebih lanjut.",
+        "Untuk informasi lengkap mengenai biaya SPP dan biaya lainnya, Anda bisa menghubungi kantor sekolah atau melihat di situs web kami."
+      ],
+      "context": [
+        ""
+      ]
+    },
+    {
+      "tag": "school_facilities",
+      "patterns": [
+        "Apa saja fasilitas di sekolah ini?",
+        "Fasilitas apa yang tersedia di SMPK Budi Mulia?",
+        "Apakah ada fasilitas olahraga?",
+        "Apa sekolah ini punya laboratorium?",
+        "Fasilitas apa yang dimiliki SMPK Budi Mulia?"
+      ],
+      "responses": [
+        "SMPK Budi Mulia Lawang memiliki fasilitas lengkap seperti ruang kelas ber-AC, laboratorium sains, lapangan olahraga, perpustakaan, dan laboratorium komputer.",
+        "Sekolah ini dilengkapi dengan laboratorium, perpustakaan, fasilitas olahraga, dan ruang kelas modern.",
+        "Fasilitas kami meliputi laboratorium sains, laboratorium komputer, perpustakaan, dan lapangan olahraga."
+      ],
+      "context": [
+        ""
+      ]
+    },
+    {
+      "tag": "contact",
+      "patterns": [
+        "Bagaimana cara menghubungi sekolah ini?",
+        "Nomor telepon sekolah ini berapa?",
+        "Apakah ada kontak yang bisa dihubungi?",
+        "Siapa yang bisa saya hubungi untuk informasi lebih lanjut?",
+        "Bagaimana cara saya menghubungi pihak sekolah?"
+      ],
+      "responses": [
+        "Anda bisa menghubungi kami melalui telepon di (0341) 123456 atau melalui email di info@smpkbudimulia.sch.id.",
+        "Untuk informasi lebih lanjut, Anda dapat menghubungi nomor (0341) 123456 atau email kami di info@smpkbudimulia.sch.id.",
+        "Hubungi kami melalui nomor telepon (0341) 123456 atau email di info@smpkbudimulia.sch.id untuk pertanyaan lebih lanjut."
+      ],
+      "context": [
+        ""
+      ]
+    },
+    {
+      "tag": "thanks",
+      "patterns": [
+        "Terima kasih",
+        "Makasih",
+        "Itu sangat membantu",
+        "Hebat, terima kasih",
+        "Terima kasih telah membantu saya"
+      ],
+      "responses": [
+        "Senang bisa membantu!",
+        "Kapan saja!",
+        "Sama-sama!"
+      ],
+      "context": [
+        ""
+      ]
+    },
+    {
+      "tag": "options",
+      "patterns": [
+        "Bagaimana kamu bisa membantu saya?",
+        "Apa yang bisa kamu lakukan?",
+        "Apa bantuan yang kamu sediakan?",
+        "Bagaimana kamu bisa membantu?",
+        "Apa dukungan yang ditawarkan?"
+      ],
+      "responses": [
+        "Saya bisa membantu Anda dengan informasi tentang pendaftaran, biaya sekolah, fasilitas, dan kontak sekolah.",
+        "Saya bisa memberikan informasi terkait pendaftaran siswa baru, biaya, fasilitas sekolah, dan cara menghubungi kami."
+      ],
+      "context": [
+        ""
+      ]
+    },
+    {
+      "tag": "noanswer",
+      "patterns": [
+        ""
+      ],
+      "responses": [
+        "Skabum tidak tahu. Mungkin coba hubungi : https://wa.me/62082141885658",
+        "Saya tidak yakin saya mengerti. Mungkin coba hubungi : https://wa.me/62082141885658",
+        "Tolong berikan saya info lebih banyak. Mungkin coba hubungi : https://wa.me/62082141885658",
+        "Maaf, saya tidak mengerti. Mungkin coba hubungi https://wa.me/62082141885658"
+      ],
+      "context": [
+        ""
+      ]
+    }
+  ]
+}
