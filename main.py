@@ -18,8 +18,8 @@ intents = json.loads(open('data.json').read())
 words = pickle.load(open('texts.pkl','rb'))
 classes = pickle.load(open('labels.pkl','rb'))
 
-TOKEN: Final ='7541193471:AAE0vvCWpI2Wy8wHHtlNcJ5BxyWC3tF2zhE'
-BOT_USERNAME: Final ='@basic_school_bot'
+TOKEN: Final ='7550700421:AAGkbxFxXU-wqtmzeyzVPJsj1vVIROODo_s'
+BOT_USERNAME: Final ='@skabum_lawang_chatbot'
 
 
 def clean_up_sentence(sentence):
