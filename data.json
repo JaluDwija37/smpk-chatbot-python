@@ -177,6 +177,24 @@
       "context": [
         ""
       ]
+    },
+    {
+      "tag": "extracurricular",
+      "patterns": [
+        "Ada ekstrakurikuler apa di SMPK?",
+        "Ekstrakurikuler apa saja yang tersedia di sekolah ini?",
+        "Apa saja kegiatan ekstrakurikuler di SMPK Budi Mulia?",
+        "Bisa jelaskan tentang ekstrakurikuler SMPK ini?",
+        "Ekstrakurikuler apa yang ditawarkan oleh SMPK Budi Mulia?"
+      ],
+      "responses": [
+        "Di SMPK Budi Mulia, kami menawarkan berbagai kegiatan ekstrakurikuler, seperti olahraga, seni, dan klub akademis. Anda dapat mengunjungi website kami untuk informasi lebih lanjut tentang setiap kegiatan.",
+        "SMPK Budi Mulia memiliki berbagai ekstrakurikuler, termasuk olahraga, musik, tari, dan penelitian. Silakan cek situs web kami untuk daftar lengkapnya.",
+        "Kami menyediakan berbagai pilihan ekstrakurikuler, mulai dari klub sains hingga kegiatan seni. Untuk detail lebih lengkap, Anda bisa mengunjungi halaman kami."
+      ],
+      "context": [
+        ""
+      ]
     }
   ]
 }
