@@ -1,3 +1,5 @@
+import requests
+
 from typing import Final
 from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
@@ -102,8 +104,19 @@ def handle_response(text: str) -> str:
 
     return getResponse(ints, intents)
 
-def no_answer(question:str):
-    return print(question)
+
+
+def no_answer(question: str):
+    url = "http://chatbot.test/api/unanswered"
+    data = {"question": question}
+    
+    try:
+        response = requests.post(url, json=data)
+        response.raise_for_status()  # Raises an error for bad responses
+        print("Question sent successfully:", response.status_code)
+    except requests.exceptions.RequestException as e:
+        print("Error in sending question:", e)
+
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     message_type: str = update.message.chat.type
