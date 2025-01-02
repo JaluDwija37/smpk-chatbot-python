@@ -9,6 +9,7 @@ import requests
 from Sastrawi.Stemmer.StemmerFactory import StemmerFactory
 import sys
 import nltk
+import matplotlib.pyplot as plt  # Importing matplotlib for plotting
 
 # Download necessary NLTK resources
 nltk.download('punkt')
@@ -127,7 +128,32 @@ sgd = SGD(learning_rate=0.01, momentum=0.9, nesterov=True)
 model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
 
 # Fitting and saving the model
-hist = model.fit(train_x, train_y, epochs=700, batch_size=5, verbose=1)
+hist = model.fit(train_x, train_y, epochs=1000, batch_size=5, verbose=1)
 model.save('model.h5')
 
 print("Model created")
+
+# Plotting accuracy and loss
+accuracy = hist.history['accuracy']
+loss = hist.history['loss']
+epochs = range(1, len(accuracy) + 1)
+
+# Plotting accuracy
+plt.figure(figsize=(12, 5))
+plt.subplot(1, 2, 1)
+plt.plot(epochs, accuracy, 'b', label='Training accuracy')
+plt.title('Training accuracy')
+plt.xlabel('Epochs')
+plt.ylabel('Accuracy')
+plt.legend()
+
+# Plotting loss
+plt.subplot(1, 2, 2)
+plt.plot(epochs, loss, 'r', label='Training loss')
+plt.title('Training loss')
+plt.xlabel('Epochs')
+plt.ylabel('Loss')
+plt.legend()
+
+plt.tight_layout()
+plt.show()
