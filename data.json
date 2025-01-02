@@ -9,15 +9,16 @@
         "Hai",
         "Hola",
         "Selamat pagi",
-        "Halo, skabum"
+        "Halo, skabum",
+        "Hi",
+        "Helo",
+        "Selamat Siang",
+        "Selamat malam"
       ],
       "responses": [
         "Halo, ada yang bisa skabum bantu?",
         "Hi, senang bertemu anda?",
         "Apa yang ingin anda ketahui?"
-      ],
-      "context": [
-        ""
       ]
     },
     {
@@ -33,9 +34,6 @@
         "Sampai jumpa!",
         "Semoga harimu menyenangkan",
         "Selamat tinggal, semangat belajarnya yaa"
-      ],
-      "context": [
-        ""
       ]
     },
     {
@@ -51,9 +49,6 @@
         "Sekolah ini adalah SMPK Budi Mulia yang berlokasi di Lawang, Jawa Timur.",
         "Anda sedang menghubungi SMPK Budi Mulia Lawang, berlokasi di Lawang, Jawa Timur.",
         "Ini adalah SMPK Budi Mulia, terletak di Lawang, Jawa Timur."
-      ],
-      "context": [
-        ""
       ]
     },
     {
@@ -69,9 +64,6 @@
         "Untuk mendaftar di SMPK Budi Mulia Lawang, Anda dapat mengunjungi situs resmi kami atau datang langsung ke sekolah untuk informasi lebih lanjut.",
         "Pendaftaran siswa baru dapat dilakukan melalui website sekolah atau dengan datang langsung ke SMPK Budi Mulia di Lawang.",
         "Silakan kunjungi halaman pendaftaran di situs web SMPK Budi Mulia atau datang langsung ke sekolah untuk informasi lebih lanjut."
-      ],
-      "context": [
-        ""
       ]
     },
     {
@@ -87,9 +79,6 @@
         "Untuk informasi biaya sekolah di SMPK Budi Mulia, Anda dapat menghubungi bagian administrasi sekolah atau mengunjungi situs resmi kami.",
         "Biaya pendidikan di SMPK Budi Mulia bervariasi, silakan hubungi administrasi sekolah untuk detail lebih lanjut.",
         "Untuk informasi lengkap mengenai biaya SPP dan biaya lainnya, Anda bisa menghubungi kantor sekolah atau melihat di situs web kami."
-      ],
-      "context": [
-        ""
       ]
     },
     {
@@ -105,9 +94,6 @@
         "SMPK Budi Mulia Lawang memiliki fasilitas lengkap seperti ruang kelas ber-AC, laboratorium sains, lapangan olahraga, perpustakaan, dan laboratorium komputer.",
         "Sekolah ini dilengkapi dengan laboratorium, perpustakaan, fasilitas olahraga, dan ruang kelas modern.",
         "Fasilitas kami meliputi laboratorium sains, laboratorium komputer, perpustakaan, dan lapangan olahraga."
-      ],
-      "context": [
-        ""
       ]
     },
     {
@@ -123,9 +109,6 @@
         "Anda bisa menghubungi kami melalui telepon di (0341) 123456 atau melalui email di info@smpkbudimulia.sch.id.",
         "Untuk informasi lebih lanjut, Anda dapat menghubungi nomor (0341) 123456 atau email kami di info@smpkbudimulia.sch.id.",
         "Hubungi kami melalui nomor telepon (0341) 123456 atau email di info@smpkbudimulia.sch.id untuk pertanyaan lebih lanjut."
-      ],
-      "context": [
-        ""
       ]
     },
     {
@@ -141,9 +124,6 @@
         "Senang bisa membantu!",
         "Kapan saja!",
         "Sama-sama!"
-      ],
-      "context": [
-        ""
       ]
     },
     {
@@ -158,9 +138,6 @@
       "responses": [
         "Saya bisa membantu Anda dengan informasi tentang pendaftaran, biaya sekolah, fasilitas, dan kontak sekolah.",
         "Saya bisa memberikan informasi terkait pendaftaran siswa baru, biaya, fasilitas sekolah, dan cara menghubungi kami."
-      ],
-      "context": [
-        ""
       ]
     },
     {
@@ -173,9 +150,6 @@
         "Saya tidak yakin saya mengerti. Mungkin coba hubungi : https://wa.me/62082141885658",
         "Tolong berikan saya info lebih banyak. Mungkin coba hubungi : https://wa.me/62082141885658",
         "Maaf, saya tidak mengerti. Mungkin coba hubungi https://wa.me/62082141885658"
-      ],
-      "context": [
-        ""
       ]
     },
     {
@@ -191,9 +165,6 @@
         "Di SMPK Budi Mulia, kami menawarkan berbagai kegiatan ekstrakurikuler, seperti olahraga, seni, dan klub akademis. Anda dapat mengunjungi website kami untuk informasi lebih lanjut tentang setiap kegiatan.",
         "SMPK Budi Mulia memiliki berbagai ekstrakurikuler, termasuk olahraga, musik, tari, dan penelitian. Silakan cek situs web kami untuk daftar lengkapnya.",
         "Kami menyediakan berbagai pilihan ekstrakurikuler, mulai dari klub sains hingga kegiatan seni. Untuk detail lebih lengkap, Anda bisa mengunjungi halaman kami."
-      ],
-      "context": [
-        ""
       ]
     }
   ]
