@@ -15,7 +15,7 @@ nltk.download('punkt')
 nltk.download('wordnet')
 
 # Define the API endpoint
-url = 'http://chatbot.test/api/faq'
+url = 'http://127.0.0.1:8000/api/faq'
 
 # Send a GET request to the API
 response = requests.get(url)
@@ -127,7 +127,7 @@ sgd = SGD(learning_rate=0.01, momentum=0.9, nesterov=True)
 model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
 
 # Fitting and saving the model
-hist = model.fit(train_x, train_y, epochs=700, batch_size=5, verbose=1)
+hist = model.fit(train_x, train_y, epochs=350, batch_size=5, verbose=1)
 model.save('model.h5')
 
 print("Model created")

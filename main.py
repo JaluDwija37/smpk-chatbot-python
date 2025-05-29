@@ -5,6 +5,7 @@ import os
 import sys
 import signal
 import time
+import requests
 
 app = Flask(__name__)
 CORS(app)
@@ -19,17 +20,29 @@ def stop_main():
         print("Sending shutdown request to main.py...")
         os.kill(main_process.pid, signal.SIGTERM)  # Send shutdown signal
         time.sleep(1)  # Wait for a second for the process to shut down
-def run_train_and_bot():
-    python_executable = sys.executable
-    subprocess.run([python_executable, 'training.py'], check=True)
-    subprocess.run([python_executable, 'main.py'], check=True)
 
+def send_status(message="No message", status="200"):
+    """Send status update to monitoring endpoint."""
+    try:
+        response = requests.post(
+            'http://127.0.0.1:8000/api/chatbot_status',
+            json={"status": status, "message": message}
+        )
+        return response.ok
+    except requests.RequestException:
+        print("Failed to send status update")
+        return False
 
 @app.route('/trigger', methods=['POST'])
 def trigger_bot():
+    """Endpoint to trigger bot training and execution."""
     try:
-        run_train_and_bot()  # Run train.py and main.py
-        return jsonify({"message": "Bot triggered successfully!"}), 200
+        # Run the processes asynchronously
+        global main_process
+        subprocess.run([sys.executable, 'training.py'], check=True)
+        main_process = subprocess.Popen([sys.executable, 'main.py'])
+        send_status("Bot started successfully!")
+        return jsonify({"message": "Bot Trained successfully!"}), 200
     except subprocess.CalledProcessError as e:
         return jsonify({"message": f"Error in training: {str(e)}"}), 500
 

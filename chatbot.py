@@ -4,6 +4,8 @@ import random
 import numpy as np
 import pickle
 import nltk
+import threading
+import time
 from keras.models import load_model
 from typing import Final
 from telegram import Update
@@ -17,14 +19,29 @@ nltk.download('punkt')
 factory = StemmerFactory()
 stemmer = factory.create_stemmer()
 
-# Load the model and intents
-model = load_model('model.h5')
-intents = json.loads(open('data.json').read())
-words = pickle.load(open('texts.pkl', 'rb'))
-classes = pickle.load(open('labels.pkl', 'rb'))
+# Global variables for model and data
+model = None
+intents = None
+words = None
+classes = None
 
-# Print the vocabulary size during inference
-print(f"Vocabulary size during inference: {len(words)}")
+def load_data():
+    global model, intents, words, classes
+    model = load_model('model.h5')
+    intents = json.loads(open('data.json').read())
+    words = pickle.load(open('texts.pkl', 'rb'))
+    classes = pickle.load(open('labels.pkl', 'rb'))
+    print(f"Data reloaded. Vocabulary size: {len(words)}")
+
+def data_refresh_thread():
+    while True:
+        load_data()
+        time.sleep(5)
+
+# Start the data refresh thread
+thread = threading.Thread(target=data_refresh_thread)
+thread.daemon = True
+thread.start()
 
 TOKEN: Final = '7550700421:AAGkbxFxXU-wqtmzeyzVPJsj1vVIROODo_s'
 BOT_USERNAME: Final = '@skabum_lawang_chatbot'
@@ -85,11 +102,11 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def custom_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text('This is a custom command!')
 
-async def link_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text('https://www.youtube.com/watch?v=vZtm1wuA2yc')
+# async def link_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+#     await update.message.reply_text('https://www.youtube.com/watch?v=vZtm1wuA2yc')
 
 # Responses
-def handle_response(text: str) -> str:
+def handle_response(text: str, username: str) -> str:
     ints = predict_class(text, model)
     if not ints or len(ints) == 0:
         return "Maaf saya tidak tau"
@@ -97,18 +114,20 @@ def handle_response(text: str) -> str:
     top_intent = ints[0]
     tag = top_intent['intent']
     confidence = float(top_intent['probability'])
+    print(f"Confidence: {confidence}") # Added print statement for confidence
     
-    if confidence < 0.25:  # Adjust the threshold as needed
+    if confidence < 0.6:  # Adjust the threshold as needed
+        no_answer(text, username)
         return "Maaf saya tidak tau"
     
-    if tag=='noanswer':
-       no_answer(text)
+    if tag == 'noanswer':
+        no_answer(text, username)
     
     return getResponse(ints, intents)
 
-def no_answer(question: str):
-    url = "http://chatbot.test/api/unanswered"
-    data = {"question": question}
+def no_answer(question: str, username: str):
+    url = "http://127.0.0.1:8000/api/unanswered"
+    data = {"question": question, "sender": username}
     
     try:
         response = requests.post(url, json=data)
@@ -117,24 +136,41 @@ def no_answer(question: str):
     except requests.exceptions.RequestException as e:
         print("Error in sending question:", e)
 
-
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     message_type: str = update.message.chat.type
     text: str = update.message.text
+    username: str = update.message.from_user.username
     
     print(f'User({update.message.chat.id}) in {message_type}: "{text}"')
     
     if message_type == 'group':
         if BOT_USERNAME in text:
             new_text: str = text.replace(BOT_USERNAME, '').strip()
-            response = handle_response(new_text)
+            response = handle_response(new_text, username)
         else:
             return
     else:
-        response = handle_response(text)
-        
+        response = handle_response(text, username)
+    
     print('Bot:', response)
     await update.message.reply_text(response)
+    
+    # Send chat history to the API
+    try:
+        ints = predict_class(text, model)
+        confidence = float(ints[0]['probability']) if ints else 0.0
+        chat_history = {
+            "sender": username,
+            "message": text,
+            "response": response,
+            "confidence": confidence
+        }
+        url = "http://127.0.0.1:8000/api/chat_history"
+        api_response = requests.post(url, json=chat_history)
+        api_response.raise_for_status()
+        print("Chat history sent successfully:", api_response.status_code)
+    except requests.exceptions.RequestException as e:
+        print("Error in sending chat history:", e)
 
 async def error(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if update is not None:
@@ -145,13 +181,14 @@ async def error(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 if __name__ == '__main__':
     print('Starting bot...')
+    load_data()  # Initial load
     app = Application.builder().token(TOKEN).build()
     
     # Commands
     app.add_handler(CommandHandler('start', start_command))
     app.add_handler(CommandHandler('help', help_command))
     app.add_handler(CommandHandler('custom', custom_command))
-    app.add_handler(CommandHandler('link', link_command))
+    # app.add_handler(CommandHandler('link', link_command))
     
     # Messages
     app.add_handler(MessageHandler(filters.TEXT, handle_message))
@@ -162,3 +199,4 @@ if __name__ == '__main__':
     # Polls the bot
     print('Polling...')
     app.run_polling(poll_interval=3)
+
