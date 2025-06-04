@@ -116,9 +116,9 @@ def handle_response(text: str, username: str) -> str:
     confidence = float(top_intent['probability'])
     print(f"Confidence: {confidence}") # Added print statement for confidence
     
-    if confidence < 0.6:  # Adjust the threshold as needed
-        no_answer(text, username)
-        return "Maaf saya tidak tau"
+    # if confidence < 0.5:  # Adjust the threshold as needed
+    #     no_answer(text, username)
+    #     return "Maaf saya tidak tau"
     
     if tag == 'noanswer':
         no_answer(text, username)

@@ -1,5 +1,5 @@
 import random
-from keras.optimizers import SGD
+from keras.optimizers import Adam # Import Adam optimizer
 from keras.layers import Dense, Dropout
 from keras.models import Sequential
 from keras.callbacks import EarlyStopping # Import EarlyStopping
@@ -12,11 +12,30 @@ import sys
 import nltk
 import matplotlib.pyplot as plt
 from sklearn.metrics import accuracy_score, precision_score, recall_score
+import argparse
+from keras.optimizers import SGD
+import os
 from sklearn.model_selection import train_test_split # Import train_test_split
 
 # Download necessary NLTK resources
 nltk.download('punkt')
 nltk.download('wordnet')
+# Parse command-line arguments
+parser = argparse.ArgumentParser(description="Training script with configurable parameters.")
+parser.add_argument('--learning_rate', type=float, default=0.05, help='Learning rate for the optimizer')
+parser.add_argument('--batch_size', type=int, default=5, help='Batch size for training')
+parser.add_argument('--optimizer', type=str, default='adam', help='Optimizer to use (e.g., adam, sgd)')
+parser.add_argument('--testing_percentage', type=float, default=0.5, help='Percentage of data to use for testing')
+
+args = parser.parse_args()
+
+# Parameters
+BATCH_SIZE = args.batch_size
+LEARNING_RATE = args.learning_rate
+OPTIMIZER = args.optimizer
+TESTING_PERCENTAGE = args.testing_percentage / 100  # Convert percentage to a fraction
+
+print(f"\033[91mUsing parameters: learning_rate={LEARNING_RATE}, batch_size={BATCH_SIZE}, optimizer={OPTIMIZER}, testing_percentage={TESTING_PERCENTAGE}\033[0m")
 
 # Define the API endpoint
 url = 'http://127.0.0.1:8000/api/faq'
@@ -119,7 +138,7 @@ all_x = np.array(list(all_data_np[:, 0]), dtype=np.float32)
 all_y = np.array(list(all_data_np[:, 1]), dtype=np.float32)
 
 # Split data into training and validation sets (e.g., 80% train, 20% validation)
-train_x, val_x, train_y, val_y = train_test_split(all_x, all_y, test_size=0.2, random_state=42) # random_state for reproducibility
+train_x, val_x, train_y, val_y = train_test_split(all_x, all_y, test_size=TESTING_PERCENTAGE, random_state=42) # random_state for reproducibility
 
 print("Training data shape:", train_x.shape, train_y.shape)
 print("Validation data shape:", val_x.shape, val_y.shape)
@@ -134,9 +153,15 @@ model.add(Dense(64, activation='relu'))
 model.add(Dropout(0.5))
 model.add(Dense(len(train_y[0]), activation='softmax'))
 
-# Compile model. Stochastic gradient descent with Nesterov accelerated gradient gives good results for this model
-sgd = SGD(learning_rate=0.01, momentum=0.9, nesterov=True)
-model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
+# Compile model. Use specified optimizer
+if OPTIMIZER.lower() == 'adam':
+    optimizer = Adam(learning_rate=LEARNING_RATE)  # Use Adam optimizer with specified learning rate
+elif OPTIMIZER.lower() == 'sgd':
+    optimizer = SGD(learning_rate=LEARNING_RATE)  # Use SGD optimizer with specified learning rate
+else:
+    raise ValueError(f"Unsupported optimizer: {OPTIMIZER}. Please use 'adam' or 'sgd'.")
+
+model.compile(loss='categorical_crossentropy', optimizer=optimizer, metrics=['accuracy'])
 
 # Define EarlyStopping callback
 # It will monitor 'val_loss'. Training will stop if 'val_loss' doesn't improve for 'patience' epochs.
@@ -145,7 +170,7 @@ early_stopping = EarlyStopping(monitor='val_loss', patience=20, verbose=1, resto
 
 # Fitting and saving the model
 # Pass validation_data and the early_stopping callback
-hist = model.fit(train_x, train_y, epochs=350, batch_size=5, verbose=1,
+hist = model.fit(train_x, train_y, epochs=700, batch_size=BATCH_SIZE, verbose=1,
 validation_data=(val_x, val_y), # Add validation data
 callbacks=[early_stopping])      # Add EarlyStopping callback
 
@@ -165,6 +190,19 @@ accuracy = accuracy_score(val_y_true, val_y_pred)
 precision = precision_score(val_y_true, val_y_pred, average='weighted', zero_division=0) # Added zero_division
 recall = recall_score(val_y_true, val_y_pred, average='weighted', zero_division=0) # Added zero_division
 
+# Save metrics to a JSON file
+metrics = {
+    "accuracy": accuracy,
+    "precision": precision,
+    "recall": recall
+}
+
+metrics_file = 'metrics.json'
+with open(metrics_file, 'w') as f:
+    json.dump(metrics, f, indent=2)
+
+print(f"Metrics saved to {metrics_file}")
+
 print(f"Validation Accuracy: {accuracy}")
 print(f"Validation Precision: {precision}")
 print(f"Validation Recall: {recall}")
@@ -178,12 +216,20 @@ val_loss_hist = hist.history['val_loss'] # Get validation loss
 # Determine the number of epochs that were actually run
 # If early stopping occurred, this will be less than 350
 actual_epochs = range(1, len(accuracy_hist) + 1)
+# Save the plot as an image file
+# Generate the initial plot image path
+plot_image_path = f'training_validation_plot_{OPTIMIZER}_{LEARNING_RATE}_{BATCH_SIZE}_{TESTING_PERCENTAGE}.png'
 
-# Plotting accuracy
+# Check if the file already exists, and if so, append a number to make it unique
+iteration = 1
+while os.path.exists(plot_image_path):
+    plot_image_path = f'training_validation_plot_{OPTIMIZER}_{LEARNING_RATE}_{BATCH_SIZE}_{TESTING_PERCENTAGE}_{iteration}.png'
+    iteration += 1
+
 plt.figure(figsize=(12, 5))
 plt.subplot(1, 2, 1)
 plt.plot(actual_epochs, accuracy_hist, 'b-', label='Training accuracy')
-plt.plot(actual_epochs, val_accuracy_hist, 'g-', label='Validation accuracy') # Plot validation accuracy
+plt.plot(actual_epochs, val_accuracy_hist, 'g-', label='Validation accuracy')  # Plot validation accuracy
 plt.title('Training and Validation accuracy')
 plt.xlabel('Epochs')
 plt.ylabel('Accuracy')
@@ -192,14 +238,17 @@ plt.legend()
 # Plotting loss
 plt.subplot(1, 2, 2)
 plt.plot(actual_epochs, loss_hist, 'b-', label='Training loss')
-plt.plot(actual_epochs, val_loss_hist, 'g-', label='Validation loss') # Plot validation loss
+plt.plot(actual_epochs, val_loss_hist, 'g-', label='Validation loss')  # Plot validation loss
 plt.title('Training and Validation loss')
 plt.xlabel('Epochs')
 plt.ylabel('Loss')
 plt.legend()
 
 plt.tight_layout()
-plt.show()
+plt.savefig(plot_image_path)  # Save the plot as an image file
+plt.close()
+
+print(f"Training and validation plot saved as {plot_image_path}")
 
 # If you didn't use restore_best_weights=True with EarlyStopping,
 # you could manually find the epoch with the lowest validation loss:
