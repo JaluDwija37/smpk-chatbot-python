@@ -43,8 +43,8 @@ thread = threading.Thread(target=data_refresh_thread)
 thread.daemon = True
 thread.start()
 
-TOKEN: Final = '7550700421:AAGkbxFxXU-wqtmzeyzVPJsj1vVIROODo_s'
-BOT_USERNAME: Final = '@skabum_lawang_chatbot'
+TOKEN: Final = 
+BOT_USERNAME: Final = 
 
 def clean_up_sentence(sentence):
     # Tokenize the pattern - split words into array
