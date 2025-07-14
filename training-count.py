@@ -1,3 +1,4 @@
+import time
 import random
 from keras.optimizers import SGD
 from keras.layers import Dense, Dropout
@@ -10,12 +11,15 @@ from Sastrawi.Stemmer.StemmerFactory import StemmerFactory
 import sys
 import nltk
 
+# Start the timer
+start_time = time.time()
+
 # Download necessary NLTK resources
 nltk.download('punkt')
 nltk.download('wordnet')
 
 # Define the API endpoint
-url = 'http://127.0.0.1:8000/api/faq'
+url = 'http://chatbot.test/api/faq'
 
 # Send a GET request to the API
 response = requests.get(url)
@@ -127,7 +131,16 @@ sgd = SGD(learning_rate=0.01, momentum=0.9, nesterov=True)
 model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
 
 # Fitting and saving the model
-hist = model.fit(train_x, train_y, epochs=350, batch_size=5, verbose=1)
+hist = model.fit(train_x, train_y, epochs=1000, batch_size=5, verbose=1)
 model.save('model.h5')
 
 print("Model created")
+
+# End the timer
+end_time = time.time()
+
+# Calculate the duration
+execution_time = end_time - start_time
+
+# Print the execution time
+print(f'Execution time: {execution_time} seconds')

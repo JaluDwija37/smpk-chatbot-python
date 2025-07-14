@@ -1,144 +1,101 @@
-from typing import Final
-from telegram import Update
-from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
-
-import nltk
-nltk.download('popular')
-nltk.download('punkt_tab')
-from nltk.stem import WordNetLemmatizer
-lemmatizer = WordNetLemmatizer()
-import pickle
-import numpy as np
-
-from keras.models import load_model
-model = load_model('model.h5')
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+import subprocess
+import os
+import sys
+import signal
+import time
+import requests
 import json
-import random
-intents = json.loads(open('data.json').read())
-words = pickle.load(open('texts.pkl','rb'))
-classes = pickle.load(open('labels.pkl','rb'))
 
-TOKEN: Final ='7550700421:AAGkbxFxXU-wqtmzeyzVPJsj1vVIROODo_s'
-BOT_USERNAME: Final ='@skabum_lawang_chatbot'
+app = Flask(__name__)
+CORS(app)
 
+# Global variable to keep track of the main bot process
+main_process = None
 
-def clean_up_sentence(sentence):
-    # tokenize the pattern - split words into array
-    sentence_words = nltk.word_tokenize(sentence)
-    # stem each word - create short form for word
-    sentence_words = [lemmatizer.lemmatize(word.lower()) for word in sentence_words]
-    return sentence_words
+def stop_main():
+    """Stop the main.py process."""
+    global main_process
+    if main_process:
+        print("Sending shutdown request to main.py...")
+        os.kill(main_process.pid, signal.SIGTERM)  # Send shutdown signal
+        time.sleep(1)  # Wait for a second for the process to shut down
 
-# return bag of words array: 0 or 1 for each word in the bag that exists in the sentence
+def send_status(learning_rate, batch_size, optimizer, testing_percentage, message="No message", status="200", **kwargs):
+    """Send status update to monitoring endpoint."""
+    try:
+        response = requests.post(
+            'http://127.0.0.1:8000/api/chatbot_status',
+            json={
+            "status": status,
+            "message": message,
+            "learning_rate": learning_rate,
+            "batch_size": batch_size,
+            "optimizer": optimizer,
+            "testing_percentage": testing_percentage,
+            "accuracy": kwargs.get("accuracy", 0),
+            "precision": kwargs.get("precision", 0),
+            "recall": kwargs.get("recall", 0)
+            }
+        )
+        return response.ok
+    except requests.RequestException:
+        print("Failed to send status update")
+        return False
 
-def bow(sentence, words, show_details=True):
-    # tokenize the pattern
-    sentence_words = clean_up_sentence(sentence)
-    # bag of words - matrix of N words, vocabulary matrix
-    bag = [0]*len(words)  
-    for s in sentence_words:
-        for i,w in enumerate(words):
-            if w == s: 
-                # assign 1 if current word is in the vocabulary position
-                bag[i] = 1
-                if show_details:
-                    print ("found in bag: %s" % w)
-    return(np.array(bag))
+@app.route('/trigger', methods=['POST'])
+def trigger_bot():
+    """Endpoint to trigger bot training and execution."""
+    try:
+        # Extract parameters from the request
+        data = request.json
+        learning_rate = data.get('learning_rate', '0.01')
+        batch_size = data.get('batch_size', '32')
+        optimizer = data.get('optimizer', 'adam')
+        testing_percentage = data.get('testing_percentage', '0.2')
 
-def predict_class(sentence, model):
-    # filter out predictions below a threshold
-    p = bow(sentence, words,show_details=False)
-    res = model.predict(np.array([p]))[0]
-    ERROR_THRESHOLD = 0.25
-    results = [[i,r] for i,r in enumerate(res) if r>ERROR_THRESHOLD]
-    # sort by strength of probability
-    results.sort(key=lambda x: x[1], reverse=True)
-    return_list = []
-    for r in results:
-        return_list.append({"intent": classes[r[0]], "probability": str(r[1])})
-    return return_list
+        # Run the processes asynchronously
+        global main_process
+        subprocess.run(
+            [
+                sys.executable, 
+                'training-with-graph.py', 
+                '--learning_rate', learning_rate, 
+                '--batch_size', batch_size, 
+                '--optimizer', optimizer, 
+                '--testing_percentage', testing_percentage
+            ], 
+            check=True
+        )
+        main_process = subprocess.Popen([sys.executable, 'main.py'])
+        try:
+            with open('metrics.json', 'r') as metric_file:
+                metrics = json.load(metric_file)
+        except FileNotFoundError:
+            metrics = {"accuracy": 0, "precision": 0, "recall": 0}  # Default values if file doesn't exist
+        except json.JSONDecodeError:
+            return jsonify({"message": "Error decoding metrics.json"}), 500
 
-def getResponse(ints, intents_json):
-    tag = ints[0]['intent']
-    list_of_intents = intents_json['intents']
-    for i in list_of_intents:
-        if(i['tag']== tag):
-            result = random.choice(i['responses'])
-            break
-    return result
+        send_status(
+            message="Bot started successfully!", 
+            status="200", 
+            learning_rate=learning_rate,
+            batch_size=batch_size,
+            optimizer=optimizer,
+            testing_percentage=testing_percentage,
+            **metrics
+        )
+        return jsonify({"message": "Bot trained successfully!"}), 200
+    except subprocess.CalledProcessError as e:
+        return jsonify({"message": f"Error in training: {str(e)}"}), 500
 
-# Commands
-async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text('Hello! Thanks for chatting with me!')
-    
-async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text('I am here! Please type something so I can respond!')
-    
-async def custom_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text('This is custom command!')
-    
-async def link_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text('https://www.youtube.com/watch?v=vZtm1wuA2yc')
-    
-# Responses
+@app.route('/shutdown', methods=['POST'])
+def shutdown():
+    """Endpoint to shutdown the Flask app itself."""
+    stop_main()  # Stop the main.py process
+    return jsonify({"message": "Flask server shutting down..."}), 200
 
-def handle_response(text: str) -> str:
-    ints = predict_class(text, model)
-    if not ints or len(ints) == 0:
-        # If no intent is predicted, return the default unknown response
-        return "Maaf saya tidak tau"
-    
-    # Get the highest confidence response
-    top_intent = ints[0]
-    tag = top_intent['intent']
-    confidence = float(top_intent['probability'])
-    
-    # Check if the confidence is above a certain threshold
-    if confidence < 0.25:  # Adjust the threshold as needed
-        return "Maaf saya tidak tau"
-    
-    return getResponse(ints, intents)
-
-
-async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    message_type: str = update.message.chat.type
-    text: str = update.message.text
-    
-    print(f'User({update.message.chat.id}) in {message_type}: "{text}"')
-    
-    if message_type == 'group':
-        if BOT_USERNAME in text:
-            new_text: str = text.replace(BOT_USERNAME, '').strip()
-            response = handle_response(new_text)
-        else:
-            return
-    else:
-        response = handle_response(text)
-        
-    print('Bot:', response)
-    await update.message.reply_text(response)
-
-    
-async def error(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    print(f'Update{update} caused error {context.error}')
-    await update.message.reply_text('Maaf, Silahkan bertanya kembali')
-    
 if __name__ == '__main__':
-    print('Starting bot...')
-    app = Application.builder().token(TOKEN).build()
-    
-    #Commands
-    app.add_handler(CommandHandler('start',start_command))
-    app.add_handler(CommandHandler('help',help_command))
-    app.add_handler(CommandHandler('custom',custom_command))
-    app.add_handler(CommandHandler('link',link_command))
-    
-    #Messages
-    app.add_handler(MessageHandler(filters.TEXT,handle_message))
-    
-    #Errors
-    app.add_error_handler(error)
-    
-    #Polls the bot
-    print('Polling...')
-    app.run_polling(poll_interval=3)
+    print('Starting flask app...')
+    app.run(host='0.0.0.0', port=8080)

@@ -1,1 +1,9 @@
 /env
+/venv
+data.json
+metrics.json
+Labels.pkl
+model.h5
+output.txt
+Texts.pkl
+*.png
